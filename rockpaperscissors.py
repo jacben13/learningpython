@@ -141,7 +141,7 @@ def getpositiveintupto(prompt, max):
             print("Invalid input, please try again")
     return n
 
-
+#Below this line is the main control loop for the game
 n = getpositiveintupto("How many matches would you like to play?", 20)
 game = getpositiveintupto("Pick 1 for regular rock paper scissors, pick 2 for rock paper scissors lizard spock:", 2)
 
