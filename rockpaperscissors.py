@@ -50,7 +50,18 @@ def printscores():
     print("Standings are currently:\nPlayer: "+str(playerwins)+" matches \nComputer: "+str(computerwins) \
         + " matches\n" + str(ties) + " ties")
 
-print("Prepare to play 10 matches of rock paper scissors!")
-for i in range(10):
+n = -1
+while n < 0:
+    c = input("How many matches would you like to play?")
+    if c.isnumeric() and int(c)>0:
+        n=int(c)
+    elif c.isalpha():
+        print("Please enter a number")
+    elif c.isnumeric() and int(c)<=0:
+        print("Please enter a number higher than 0")
+    else:
+        print("Invalid input, please try again")
+
+for i in range(n):
     play()
 print("Thanks for playing!")
