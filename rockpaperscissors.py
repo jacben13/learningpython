@@ -46,9 +46,12 @@ def determinewinner(p, c):
         return 3
 
 def printscores():
+    line = "="*45
     print("Match complete! Who will win the next round?")
+    print(line)
     print("Standings are currently:\nPlayer: "+str(playerwins)+" matches \nComputer: "+str(computerwins) \
         + " matches\n" + str(ties) + " ties")
+    print(line)
 
 n = -1
 while n < 0:
