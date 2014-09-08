@@ -63,8 +63,7 @@ def askplayermove():
 
 
 def askplayermoverpsls():
-    choice = getpositiveintupto("Please choose 1 for rock, 2 for paper, 3 for scissors, 4 for lizard, 5 for Spock", 5)
-    return choice
+    return getpositiveintupto("Please choose 1 for rock, 2 for paper, 3 for scissors, 4 for lizard, 5 for Spock", 5)
 
 
 def getcomputermove():
@@ -88,11 +87,11 @@ def determinewinner(p, c):
 
 def determinewinnerrpsls(p, c):
     # Convention for the truth table is 3 is a tie, 1 indicates column player won and 2 indicates row player won
-    wintable = [["", "Rock", "Paper", "Scissors", "Lizard", "Spock"], \
-                ["Rock", 3, 2, 1, 1, 2], \
-                ["Paper", 1, 3, 2, 2, 1], \
-                ["Scissors", 2, 1, 3, 1, 2], \
-                ["Lizard", 2, 1, 2, 3, 1], \
+    wintable = [["", "Rock", "Paper", "Scissors", "Lizard", "Spock"],
+                ["Rock", 3, 2, 1, 1, 2],
+                ["Paper", 1, 3, 2, 2, 1],
+                ["Scissors", 2, 1, 3, 1, 2],
+                ["Lizard", 2, 1, 2, 3, 1],
                 ["Spock", 1, 2, 1, 2, 3]]
     if p - c == 0:
         return 3
@@ -103,11 +102,11 @@ def determinewinnerrpsls(p, c):
 def winhow(p, c):
     global spockdeaths
     bank = {1: "rock", 2: "paper", 3: "scissors", 4: "lizard", 5: "Spock"}
-    verbtable = [["", "Rock", "Paper", "Scissors", "Lizard", "Spock"], \
-                 ["Rock", 3, 2, "crushes", "crushes", 2], \
-                 ["Paper", "covers", 3, 2, 2, "disproves"], \
-                 ["Scissors", 2, "cuts", 3, "decapitates", 2], \
-                 ["Lizard", 2, "eats", 2, 3, "poisons"], \
+    verbtable = [["", "Rock", "Paper", "Scissors", "Lizard", "Spock"],
+                 ["Rock", 3, 2, "crushes", "crushes", 2],
+                 ["Paper", "covers", 3, 2, 2, "disproves"],
+                 ["Scissors", 2, "cuts", 3, "decapitates", 2],
+                 ["Lizard", 2, "eats", 2, 3, "poisons"],
                  ["Spock", "vaporizes", 2, "smashes", 2, 3]]
     return bank[p] + " " + verbtable[p][c] + " " + bank[c] + "\nSpock has died " + str(spockdeaths) + " times."
 
