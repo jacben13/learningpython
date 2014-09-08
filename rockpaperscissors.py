@@ -63,7 +63,9 @@ def askplayermove():
 
 
 def askplayermoverpsls():
-    return getpositiveintupto("Please choose 1 for rock, 2 for paper, 3 for scissors, 4 for lizard, 5 for Spock", 5)
+    choice = getpositiveintupto("Please choose 1 for rock, 2 for paper, 3 for scissors, 4 for lizard, 5 for Spock", 5)
+    clearscreen()
+    return choice
 
 
 def getcomputermove():
@@ -128,7 +130,7 @@ def getpositiveintupto(prompt, max):
     n = -1
     while n < 0:
         print("*" * 45)
-        c = input(prompt)
+        c = input(prompt+"\n")
         if c.isnumeric() and int(c) > 0 and int(c) <= max:
             n = int(c)
         elif c.isalpha():
