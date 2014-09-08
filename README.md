@@ -10,4 +10,4 @@ none
 
 
 Rock Paper Scissors (Lizard Spock)
-Game I put together.  Code is not well documented currently.  You can play both
+Game I put together.  Code is not well documented currently.  You can play both traditional Rock, Paper, Scissors or Rock, Paper, Scissors, Lizard, Spock.
