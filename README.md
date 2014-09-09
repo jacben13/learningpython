@@ -10,4 +10,9 @@ none
 
 
 Rock Paper Scissors (Lizard Spock)
+
 Game I put together.  Code is not well documented currently.  You can play both traditional Rock, Paper, Scissors or Rock, Paper, Scissors, Lizard, Spock.
+
+Black Jack
+
+Same as the casino game!  You will be able to do most things that can be done in the casino version.  You should also be able to specify strategies to try and receive statistical results.
