@@ -37,21 +37,24 @@ class Deck(object):
         print(self.cards)
         print("Cards remaining: " + str(self.cards_remaining))
 
+
 class Player(object):
     # players will have hands, which will be passed card/values
     # players will also have money, strategies, and
 
     money = 0
     hand = []
-    card_values = {"acelow":1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,11:10,12:10,13:10,"acehigh":11}
-    card_names = {1: "Ace", 2: "2", 3: "3", 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',10:'10',11:'Jack',12:'Queen',13:'King'}
+    card_values = {"acelow": 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10,
+                   "acehigh": 11}
+    card_names = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
+                  12: 'Queen', 13: 'King'}
 
-    def __init__(self,money):
+    def __init__(self, money):
         self.money = money
         self.hand = []
 
-    def get_card(self,d):
-        #assert d is isinstance(object, Deck)
+    def get_card(self, d):
+        # assert d is isinstance(object, Deck)
         self.hand.append(d.deal_one_card())
 
     def clear_hand(self):
@@ -62,12 +65,12 @@ class Player(object):
         aces = 0
         for c in self.hand:
             if c == 1:
-                aces +=1
+                aces += 1
             elif c > 10:
                 c = self.card_values[c]
             total += c
-        if total + (aces*10) <= 21:
-            total += aces*10
+        if total + (aces * 10) <= 21:
+            total += aces * 10
 
         return total
 
@@ -77,22 +80,24 @@ class Player(object):
     def return_status_string(self, player_number):
         s = ""
 
-        s += "\nPlayer "+str(player_number)+" has "+str(self.money)+" money"
+        s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money"
         s += "\nContains: " + str(self.hand) + "for a total of\n"
-        s += str(self.get_total())+"\n"
+        s += str(self.get_total()) + "\n"
         return s
 
-def initialize_players(number,money):
+
+def initialize_players(number, money):
     players = []
-    #add extra player to act as the dealer
+    # add extra player to act as the dealer
     #the dealer will be players[0]
-    for x in range(number+1):
+    for x in range(number + 1):
         players.append(Player(money))
     return players
 
+
 def mainloop():
     shoe = Deck(1)
-    players = initialize_players(2,1000)
+    players = initialize_players(2, 1000)
 
     for p in players:
         p.get_card(shoe)
@@ -101,11 +106,8 @@ def mainloop():
         print(p.return_status_string(i))
 
 
-
-
-
 mainloop()
-#TODO implement app loop logic
+# TODO implement app loop logic
 #TODO implement strategies
 #TODO implement dealer strategy
 #TODO implement winning/losing and money transactions
