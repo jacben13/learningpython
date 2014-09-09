@@ -74,15 +74,38 @@ class Player(object):
 
         return total
 
+    def dealer_showing(self):
+        return self.hand[1:]
+
+    def dealer_showing_total(self):
+        total = 0
+        aces = 0
+        for c in self.hand:
+            if c > 10:
+                c = self.card_values[c]
+            total += c
+        total -= self.card_values[self.hand[0]]
+        return total
+
     def bust_or_not(self):
         return self.get_total() > 21
 
     def return_status_string(self, player_number):
         s = ""
-
-        s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money"
-        s += "\nContains: " + str(self.hand) + "for a total of\n"
-        s += str(self.get_total()) + "\n"
+        if player_number == 0:
+            s += "\nDealer has all the money"
+            s += "\nShowing: "
+            for c in self.hand[1:]:
+                s += self.card_names[c] + " "
+            s += "for a total of\n"
+            s += str(self.dealer_showing_total()) + "\n"
+        else:
+            s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money"
+            s += "\nContains: "
+            for c in self.hand:
+                s += self.card_names[c] + " "
+            s += "for a total of\n"
+            s += str(self.get_total()) + "\n"
         return s
 
 
@@ -95,12 +118,17 @@ def initialize_players(number, money):
     return players
 
 
+def initial_deal(players_list, deck):
+    for p in players_list:
+        p.get_card(deck)
+    for p in players_list:
+        p.get_card(deck)
+
 def mainloop():
     shoe = Deck(1)
     players = initialize_players(2, 1000)
 
-    for p in players:
-        p.get_card(shoe)
+    initial_deal(players, shoe)
 
     for i, p in enumerate(players):
         print(p.return_status_string(i))
