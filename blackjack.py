@@ -107,7 +107,7 @@ def mainloop():
 
 
 mainloop()
-# TODO implement app loop logic
+#TODO implement app loop logic
 #TODO implement strategies
 #TODO implement dealer strategy
 #TODO implement winning/losing and money transactions
