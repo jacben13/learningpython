@@ -73,8 +73,14 @@ class Player(object):
             elif c > 10:
                 c = self.card_values[c]
             total += c
-        if total + (aces * 10) <= 21:
-            total += aces * 10
+        for a in range(aces):
+            if total + 10 <= 21:
+                total += 10
+
+        if total == 21:
+            self.blackjack = True
+        elif total > 21:
+            self.bust = True
 
         return total
 
@@ -93,7 +99,7 @@ class Player(object):
 
     def bust_or_not(self):
         if self.get_total() > 21:
-            self.bust() = True
+            self.bust = True
         return self.bust
 
     def return_status_string(self, player_number):
@@ -116,14 +122,15 @@ class Player(object):
 
     def dealer_moves(self, d):
         if self.bust:
-            return 1
-        while not self.bust or self.get_total() < 17:
+            print("DEALER BUST")
+        while not self.bust and self.get_total() < 17:
             self.get_card(d)
         s = ""
-        print("\n Dealer has the following cards:\n")
+        print("\nDealer has the following cards:\n")
         for c in self.hand:
-            s += self.card_names[c]
+            s += self.card_names[c] + " "
         s += "for a total of \n" + str(self.get_total()) + "\n"
+        print(s)
 
 
 def get_positive_int_up_to(prompt, max):
@@ -167,36 +174,40 @@ def check_for_blackjack(players):
 
 
 def ask_player_moves(players, d):
-    assert players == Player
-    assert d == Deck
-    for i, p in enumerate(players):
-        prompt = "Player " + str(i) + ", what is your move? Choose 1 for stay, 2 to hit")
+    # slice out first player (the dealer)
+    for i, p in enumerate(players[1:]):
+        print(p.return_status_string(i + 1))
+        if p.blackjack:
+            continue
+        prompt = "Player " + str(i + 1) + ", what is your move? Choose 1 for stay, 2 to hit"
         move = get_positive_int_up_to(prompt, 2)
         while move != 1 and not p.bust and not p.blackjack:
             if move == 2:
                 p.get_card(d)
-            p.bust_or_not()
-            p.check_blackjack()
-            print(p.return_status_string(i))
-            move = get_positive_int_up_to(prompt, 2)
-
+            print(p.return_status_string(i + 1))
+            if not p.bust:
+                move = get_positive_int_up_to(prompt, 2)
+        if p.bust:
+            print("*" * 45 + "\nBUST BUST BUST BUST BUST\n" + "*" * 45)
 
 def payout_clear_hands(players):
     pass
 
 
+def print_everyone(players):
+    for i, p in enumerate(players):
+        print(p.return_status_string(i))
+
 def main_loop():
     shoe = Deck(1)
-    players = initialize_players(4, 1000)
+    players = initialize_players(1, 1000)
 
     initial_deal(players, shoe)
     check_for_blackjack(players)
-    ask_player_moves(players, d)
+    print_everyone(players)
+    ask_player_moves(players, shoe)
     players[0].dealer_moves(shoe)
     payout_clear_hands(players)
-
-    for i, p in enumerate(players):
-        print(p.return_status_string(i))
 
 
 main_loop()
