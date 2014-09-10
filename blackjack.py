@@ -33,6 +33,10 @@ class Deck(object):
             self.shuffle()
         return dealt_card
 
+    def check_cards_remaining(self, number_of_players):
+        if self.cards_remaining < number_of_players * 5:
+            self.shuffle()
+
     def print_deck(self):
         print(self.cards)
         print("Cards remaining: " + str(self.cards_remaining))
@@ -63,6 +67,7 @@ class Player(object):
     def clear_hand(self):
         self.hand = []
         self.bust = False
+        self.blackjack = False
 
     def get_total(self):
         total = 0
@@ -191,7 +196,23 @@ def ask_player_moves(players, d):
             print("*" * 45 + "\nBUST BUST BUST BUST BUST\n" + "*" * 45)
 
 def payout_clear_hands(players):
-    pass
+    if players[0].bust:
+        for p in players[1:]:
+            if not p.bust:
+                p.money += 100
+            elif p.bust:
+                p.money -= 100
+    else:
+        n = players[0].get_total()
+        for p in players[1:]:
+            if p.get_total() > n and not p.bust:
+                p.money += 100
+            elif p.get_total() == n and not p.bust:
+                pass
+            else:
+                p.money -= 100
+    for p in players:
+        p.clear_hand()
 
 
 def print_everyone(players):
@@ -199,17 +220,23 @@ def print_everyone(players):
         print(p.return_status_string(i))
 
 def main_loop():
-    shoe = Deck(1)
-    players = initialize_players(1, 1000)
+    decks = get_positive_int_up_to("How many decks would you like to play with? Must be from 1 to 10", 10)
+    seats = get_positive_int_up_to("How many hands would you like to play? Max of 5", 5)
+    rounds = get_positive_int_up_to("\nHow many rounds would you like to play? Max of 100", 100)
 
-    initial_deal(players, shoe)
-    check_for_blackjack(players)
-    print_everyone(players)
-    ask_player_moves(players, shoe)
-    players[0].dealer_moves(shoe)
-    payout_clear_hands(players)
+    shoe = Deck(decks)
+    players = initialize_players(seats, 1000)
+    print("You are playing " + str(seats) + " seats with " + str(decks) + " decks for " + str(rounds) + " rounds.")
+
+    for n in range(rounds):
+        initial_deal(players, shoe)
+        check_for_blackjack(players)
+        print_everyone(players)
+        ask_player_moves(players, shoe)
+        players[0].dealer_moves(shoe)
+        payout_clear_hands(players)
+        shoe.check_cards_remaining(len(players))
 
 
 main_loop()
 #TODO implement strategies
-#TODO implement winning/losing and money transactions
