@@ -1,17 +1,7 @@
 __author__ = 'Ben'
-import urllib.request
-import re
+import pickle, urllib
 
-n = 8022
-s = ""
-p = re.compile("\\d+")
-prefix = "http://www.pythonchallenge.com/pc/def/linkedlist.php?nothing="
-while s == "":
-    f = urllib.request.urlopen(prefix+str(n)).read()
-    print("going to : " + prefix + str(n))
-    print(f)
-    n = p.findall(str(f))
-    print("matched :%s" % n)
-    n = n[len(n)-1]
-    print(n)
-    #s = input("continue?")
+#file = open("peakhell.txt")
+#o = file.read()
+o = pickle.load(urllib.request.urlopen("http://www.pythonchallenge.com/pc/def/banner.p"))
+print(o)
