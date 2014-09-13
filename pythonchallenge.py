@@ -1,7 +1,7 @@
 __author__ = 'Ben'
-import pickle, urllib
+import pickle
 
-#file = open("peakhell.txt")
-#o = file.read()
-o = pickle.load(urllib.request.urlopen("http://www.pythonchallenge.com/pc/def/banner.p"))
+handle = open("peakhell.p","rb")
+o = pickle.load(handle)
+handle.close()
 print(o)
