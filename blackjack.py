@@ -49,8 +49,7 @@ class Player(object):
     money = 0
     hand = []
     blackjack = False
-    card_values = {"acelow": 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10,
-                   "acehigh": 11}
+    card_values = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10}
     card_names = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
                   12: 'Queen', 13: 'King'}
 
@@ -193,7 +192,7 @@ def ask_player_moves(players, d):
             if not p.bust:
                 move = get_positive_int_up_to(prompt, 2)
         if p.bust:
-            print("*" * 45 + "\nBUST BUST BUST BUST BUST\n" + "*" * 45)
+            print("*" * 45 + "\nBUST BUST BUST BUST BUST BUST BUST BUST BUST\n" + "*" * 45)
 
 def payout_clear_hands(players):
     if players[0].bust:
@@ -236,6 +235,7 @@ def main_loop():
         players[0].dealer_moves(shoe)
         payout_clear_hands(players)
         shoe.check_cards_remaining(len(players))
+        print("*"*45+"\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n"+"*"*45)
 
 
 main_loop()
