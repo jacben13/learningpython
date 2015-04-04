@@ -49,10 +49,12 @@ class Player(object):
     money = 0
     hand = []
     blackjack = False
+    broke = False
     card_values = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10}
     card_names = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
                   12: 'Queen', 13: 'King'}
     bet = 100
+    bust = False
 
     def __init__(self, money):
         self.money = money
@@ -62,6 +64,8 @@ class Player(object):
 
     def get_card(self, d):
         # assert d is isinstance(object, Deck)
+        if self.bet > self.money:
+            self.bet = self.money
         self.hand.append(d.deal_one_card())
 
     def clear_hand(self):
@@ -115,7 +119,10 @@ class Player(object):
             for c in self.hand[1:]:
                 s += self.card_names[c] + " "
         else:
-            s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money"
+            if self.broke:
+                s += "\nPlayer " + str(player_number) + " is broke as a goat and taking up space!"
+                return s
+            s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money with a bet of " + str(self.bet)
             s += "\nContains: "
             for c in self.hand:
                 s += self.card_names[c] + " "
@@ -134,6 +141,11 @@ class Player(object):
             s += self.card_names[c] + " "
         s += "for a total of \n" + str(self.get_total()) + "\n"
         print(s)
+
+    def set_bet(self, b):
+        if b > self.money:
+            return
+        self.bet = b
 
 
 def get_positive_int_up_to(prompt, max):
@@ -165,8 +177,12 @@ def initialize_players(number, money):
 
 def initial_deal(players_list, deck):
     for p in players_list:
+        if p.broke:
+            continue
         p.get_card(deck)
     for p in players_list:
+        if p.broke:
+            continue
         p.get_card(deck)
 
 
@@ -180,7 +196,7 @@ def ask_player_moves(players, d):
     # slice out first player (the dealer)
     for i, p in enumerate(players[1:]):
         print(p.return_status_string(i + 1))
-        if p.blackjack:
+        if p.blackjack or p.broke:
             continue
         prompt = "Player " + str(i + 1) + ", what is your move? Choose 1 for stay, 2 to hit"
         move = get_positive_int_up_to(prompt, 2)
@@ -207,19 +223,48 @@ def payout_clear_hands(players):
         for i, p in enumerate(players[1:]):
             if p.get_total() > n and not p.bust:
                 winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
-                p.money += 100
+                p.money += p.bet
             elif p.get_total() == n and not p.bust:
                 pass
             else:
-                p.money -= 100
+                p.money -= p.bet
     print(winners)
     for p in players:
         p.clear_hand()
 
-
 def print_everyone(players):
     for i, p in enumerate(players):
         print(p.return_status_string(i))
+
+def print_final_score(players):
+    s = "\n"
+    for i, p in enumerate(players):
+        s += "Player %d ended the game with %d money\n" % (i+1, p.money)
+    print(s)
+
+def find_broke_players(players):
+    broke_players = 1
+    for i, p in enumerate(players[1:]):
+        if p.money <= 0:
+            p.broke = True
+            print("Player " + str(i+1) + " is broke as a goat!")
+            broke_players += 1
+    if len(players) <= broke_players:
+        print("Everyone is out of money!")
+        exit()
+
+def ask_to_continue_or_change_bet(players):
+    while True:
+        try:
+            i= int(input("Hit enter to continue or input a player number to change bet\n"))
+        except ValueError:
+            return
+        if i > 0 and i < len(players):
+            new_bet = get_positive_int_up_to("What is the new bet for player " + str(i), players[i].money)
+            players[i].set_bet(new_bet)
+        else:
+            print("Try inputting a player number instead")
+
 
 def main_loop():
     decks = get_positive_int_up_to("How many decks would you like to play with? Must be from 1 to 10", 10)
@@ -239,10 +284,12 @@ def main_loop():
         ask_player_moves(players, shoe)
         players[0].dealer_moves(shoe)
         payout_clear_hands(players)
-        input("Press Enter to continue...")
+        find_broke_players(players)
+        ask_to_continue_or_change_bet(players)
         shoe.check_cards_remaining(len(players))
-        print("*"*45+"\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n"+"*"*45)
-
+        if n != rounds-1:
+            print("*"*45+"\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n"+"*"*45)
+    print_final_score(players)
 
 main_loop()
 #TODO implement strategies
