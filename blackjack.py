@@ -293,4 +293,3 @@ def main_loop():
 
 main_loop()
 #TODO implement strategies
-#TODO implement betting

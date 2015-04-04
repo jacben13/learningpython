@@ -18,4 +18,4 @@ Black Jack
 ------------
 
 Same as the casino game!  You will be able to do most things that can be done in the casino version.
-Currently, only the basic game (hit or stay) is enabled, and while money is tracked, you don't get the opportunity to change the bet.  Showing you losing and gaining money is a bit hard to see at the moment.
+Currently, only the basic game (hit or stay) is enabled.
