@@ -1,6 +1,6 @@
 __author__ = 'Ben'
 import random
-
+import configparser
 
 class Deck(object):
     cards = None
@@ -44,7 +44,7 @@ class Deck(object):
 
 class Player(object):
     # players will have hands, which will be passed card/values
-    # players will also have money, strategies, and
+    # players will also have money
 
     money = 0
     hand = []
@@ -52,6 +52,7 @@ class Player(object):
     card_values = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10}
     card_names = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
                   12: 'Queen', 13: 'King'}
+    bet = 100
 
     def __init__(self, money):
         self.money = money
@@ -113,8 +114,6 @@ class Player(object):
             s += "\nShowing: "
             for c in self.hand[1:]:
                 s += self.card_names[c] + " "
-            s += "for a total of\n"
-            s += str(self.dealer_showing_total()) + "\n"
         else:
             s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money"
             s += "\nContains: "
@@ -195,21 +194,25 @@ def ask_player_moves(players, d):
             print("*" * 45 + "\nBUST BUST BUST BUST BUST BUST BUST BUST BUST\n" + "*" * 45)
 
 def payout_clear_hands(players):
+    winners = ""
     if players[0].bust:
-        for p in players[1:]:
+        for i, p in enumerate(players[1:]):
             if not p.bust:
-                p.money += 100
+                winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
+                p.money += p.bet
             elif p.bust:
-                p.money -= 100
+                p.money -= p.bet
     else:
         n = players[0].get_total()
-        for p in players[1:]:
+        for i, p in enumerate(players[1:]):
             if p.get_total() > n and not p.bust:
+                winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
                 p.money += 100
             elif p.get_total() == n and not p.bust:
                 pass
             else:
                 p.money -= 100
+    print(winners)
     for p in players:
         p.clear_hand()
 
@@ -220,7 +223,7 @@ def print_everyone(players):
 
 def main_loop():
     decks = get_positive_int_up_to("How many decks would you like to play with? Must be from 1 to 10", 10)
-    seats = get_positive_int_up_to("How many hands would you like to play? Max of 5", 5)
+    seats = get_positive_int_up_to("How many seats would you like to play? Max of 5", 5)
     rounds = get_positive_int_up_to("\nHow many rounds would you like to play? Max of 100", 100)
 
     shoe = Deck(decks)
@@ -230,13 +233,17 @@ def main_loop():
     for n in range(rounds):
         initial_deal(players, shoe)
         check_for_blackjack(players)
-        print_everyone(players)
+        if seats > 1:
+            print_everyone(players)
+        print(players[0].return_status_string(0))
         ask_player_moves(players, shoe)
         players[0].dealer_moves(shoe)
         payout_clear_hands(players)
+        input("Press Enter to continue...")
         shoe.check_cards_remaining(len(players))
         print("*"*45+"\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n"+"*"*45)
 
 
 main_loop()
 #TODO implement strategies
+#TODO implement betting
