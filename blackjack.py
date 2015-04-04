@@ -1,6 +1,5 @@
 __author__ = 'Ben'
 import random
-import configparser
 
 class Deck(object):
     cards = None
