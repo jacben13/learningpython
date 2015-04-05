@@ -108,7 +108,7 @@ class Player(object):
             if total + 10 <= 21:
                 total += 10
 
-        if total == 21:
+        if total == 21 and len(self.hand) == 2:
             self.blackjack = True
         elif total > 21:
             self.bust = True
@@ -149,6 +149,8 @@ class Player(object):
             self.get_card(d)
         s = ""
         print("\nDealer has the following cards:\n")
+        if self.blackjack:
+            print("DEALER BLACKJACK\n")
         for c in self.hand:
             s += CARD_NAMES[c] + " "
         s += "for a total of \n" + str(self.get_total()) + "\n"
@@ -268,7 +270,7 @@ def payout_clear_hands(players):
     else:
         n = players[0].get_total()
         for i, p in enumerate(players[1:]):
-            if p.blackjack and not p.bust:
+            if p.blackjack and not p.bust and not players[0].blackjack:
                 winners += "Player " + str(i + 1) + " won " + str(int(p.bet * 1.5)) + "\n"
                 p.money += p.bet * 1.5
             elif p.get_total() > n and not p.bust:
