@@ -3,7 +3,8 @@ import random
 
 CARD_VALUES = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10}
 CARD_NAMES = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
-                  12: 'Queen', 13: 'King'}
+              12: 'Queen', 13: 'King'}
+
 
 class Deck(object):
     cards = None
@@ -116,16 +117,6 @@ class Player(object):
 
     def dealer_showing(self):
         return self.hand[1:]
-
-    def dealer_showing_total(self):
-        total = 0
-        aces = 0
-        for c in self.hand:
-            if c > 10:
-                c = CARD_VALUES[c]
-            total += c
-        total -= CARD_VALUES[self.hand[0]]
-        return total
 
     def bust_or_not(self):
         if self.get_total() > 21:
@@ -347,7 +338,6 @@ def main_loop():
         shoe.check_cards_remaining(len(players))
         if n != rounds-1:
             print("*"*45+"\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n"+"*"*45)
-    print_final_score(players)
+    print_final_score(players[1:])
 
 main_loop()
-#TODO implement strategies
