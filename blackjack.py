@@ -1,6 +1,10 @@
 __author__ = 'Ben'
 import random
 
+CARD_VALUES = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10}
+CARD_NAMES = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
+                  12: 'Queen', 13: 'King'}
+
 class Deck(object):
     cards = None
     cards_remaining = None
@@ -49,9 +53,7 @@ class Player(object):
     hand = []
     blackjack = False
     broke = False
-    card_values = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 10, 12: 10, 13: 10}
-    card_names = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack',
-                  12: 'Queen', 13: 'King'}
+
     bet = 100
     bust = False
 
@@ -72,6 +74,25 @@ class Player(object):
         self.bust = False
         self.blackjack = False
 
+    def hard_hand(self):
+        # Total up the hand, if we execute the part of the code that adds 10 more to the total for aces, we have a
+        # soft hand, otherwise, we have a hard hand
+        total = 0
+        aces = 0
+        hard = True
+        for c in self.hand:
+            if c == 1:
+                aces += 1
+            elif c > 10:
+                c = CARD_VALUES[c]
+            total += c
+        # For aces, we already added 1, add an additional 10 if it doesn't go over 21
+        for a in range(aces):
+            if total + 10 <= 21:
+                total += 10
+                hard = False
+        return hard
+
     def get_total(self):
         total = 0
         aces = 0
@@ -79,8 +100,9 @@ class Player(object):
             if c == 1:
                 aces += 1
             elif c > 10:
-                c = self.card_values[c]
+                c = CARD_VALUES[c]
             total += c
+        # For aces, we already added 1, add an additional 10 if it doesn't go over 21
         for a in range(aces):
             if total + 10 <= 21:
                 total += 10
@@ -100,9 +122,9 @@ class Player(object):
         aces = 0
         for c in self.hand:
             if c > 10:
-                c = self.card_values[c]
+                c = CARD_VALUES[c]
             total += c
-        total -= self.card_values[self.hand[0]]
+        total -= CARD_VALUES[self.hand[0]]
         return total
 
     def bust_or_not(self):
@@ -116,7 +138,7 @@ class Player(object):
             s += "\nDealer has all the money"
             s += "\nShowing: "
             for c in self.hand[1:]:
-                s += self.card_names[c] + " "
+                s += CARD_NAMES[c] + " "
         else:
             if self.broke:
                 s += "\nPlayer " + str(player_number) + " is broke as a goat and taking up space!"
@@ -124,7 +146,7 @@ class Player(object):
             s += "\nPlayer " + str(player_number) + " has " + str(self.money) + " money with a bet of " + str(self.bet)
             s += "\nContains: "
             for c in self.hand:
-                s += self.card_names[c] + " "
+                s += CARD_NAMES[c] + " "
             s += "for a total of\n"
             s += str(self.get_total()) + "\n"
         return s
@@ -137,7 +159,7 @@ class Player(object):
         s = ""
         print("\nDealer has the following cards:\n")
         for c in self.hand:
-            s += self.card_names[c] + " "
+            s += CARD_NAMES[c] + " "
         s += "for a total of \n" + str(self.get_total()) + "\n"
         print(s)
 
@@ -198,21 +220,55 @@ def ask_player_moves(players, d):
         if p.blackjack or p.broke:
             continue
         prompt = "Player " + str(i + 1) + ", what is your move? Choose 1 for stay, 2 to hit"
+        print("Recommended move is " + recommend_move(p, players[0].dealer_showing()))
         move = get_positive_int_up_to(prompt, 2)
         while move != 1 and not p.bust and not p.blackjack:
             if move == 2:
                 p.get_card(d)
             print(p.return_status_string(i + 1))
             if not p.bust:
+                print("Recommended move is " + recommend_move(p, players[0].dealer_showing()))
                 move = get_positive_int_up_to(prompt, 2)
         if p.bust:
             print("*" * 45 + "\nBUST BUST BUST BUST BUST BUST BUST BUST BUST\n" + "*" * 45)
+
+def recommend_move(player, dealer_card):
+    # This function should return a string staying Hit, Stand, and any other implemented available moves
+    # Recommendations are based on http://wizardofodds.com/games/blackjack/strategy/4-decks/
+    h = "Hit"
+    s = "Stand"
+    dealer_card = int(dealer_card[0])
+    if player.get_total() <= 11:
+        return h
+    elif player.hard_hand() and player.get_total() == 12 and dealer_card >= 4 and dealer_card <= 6:
+        return s
+    elif player.hard_hand() and player.get_total() == 12:
+        return h
+    elif player.hard_hand() and player.get_total() >= 13 and player.get_total() <=16 and\
+                    dealer_card >= 2 and dealer_card <=6:
+        return s
+    elif player.hard_hand() and player.get_total() >= 13 and player.get_total() <=16:
+        return h
+    elif player.hard_hand() and player.get_total() >= 17:
+        return s
+    elif not player.hard_hand() and player.get_total() <= 17:
+        return h
+    elif not player.hard_hand() and player.get_total() == 18 and dealer_card in {1, 9, 10}:
+        return h
+    elif not player.hard_hand() and player.get_total() == 18:
+        return s
+    elif not player.hard_hand() and player.get_total() >= 19:
+        return s
+    return "F2IK"
 
 def payout_clear_hands(players):
     winners = ""
     if players[0].bust:
         for i, p in enumerate(players[1:]):
-            if not p.bust:
+            if p.blackjack and not p.bust:
+                winners += "Player " + str(i+1) + " won " + str(int(p.bet*1.5)) + "\n"
+                p.money += p.bet*1.5
+            elif not p.bust:
                 winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
                 p.money += p.bet
             elif p.bust:
@@ -220,7 +276,10 @@ def payout_clear_hands(players):
     else:
         n = players[0].get_total()
         for i, p in enumerate(players[1:]):
-            if p.get_total() > n and not p.bust:
+            if p.blackjack and not p.bust:
+                winners += "Player " + str(i+1) + " won " + str(int(p.bet*1.5)) + "\n"
+                p.money += p.bet*1.5
+            elif p.get_total() > n and not p.bust:
                 winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
                 p.money += p.bet
             elif p.get_total() == n and not p.bust:
