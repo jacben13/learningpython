@@ -160,19 +160,19 @@ class Player(object):
         self.bet = b
 
 
-def get_positive_int_up_to(prompt, max):
+def get_positive_int_up_to(prompt, max_int):
     n = -1
     while n < 0:
         print("*" * 45)
         c = input(prompt + "\n")
-        if c.isnumeric() and int(c) > 0 and int(c) <= max:
+        if c.isnumeric() and 0 < int(c) <= max_int:
             n = int(c)
         elif c.isalpha():
             print("Please enter a number")
         elif c.isnumeric() and int(c) <= 0:
             print("Please enter a number higher than 0")
-        elif c.isnumeric() and int(c) > max:
-            print("Your number is too high, max selection is " + str(max))
+        elif c.isnumeric() and int(c) > max_int:
+            print("Your number is too high, max selection is " + str(max_int))
         else:
             print("Invalid input, please try again")
     return n
@@ -223,6 +223,7 @@ def ask_player_moves(players, d):
         if p.bust:
             print("*" * 45 + "\nBUST BUST BUST BUST BUST BUST BUST BUST BUST\n" + "*" * 45)
 
+
 def recommend_move(player, dealer_card):
     # This function should return a string staying Hit, Stand, and any other implemented available moves
     # Recommendations are based on http://wizardofodds.com/games/blackjack/strategy/4-decks/
@@ -231,14 +232,13 @@ def recommend_move(player, dealer_card):
     dealer_card = int(dealer_card[0])
     if player.get_total() <= 11:
         return h
-    elif player.hard_hand() and player.get_total() == 12 and dealer_card >= 4 and dealer_card <= 6:
+    elif player.hard_hand() and player.get_total() == 12 and dealer_card in {4, 5, 6}:
         return s
     elif player.hard_hand() and player.get_total() == 12:
         return h
-    elif player.hard_hand() and player.get_total() >= 13 and player.get_total() <=16 and\
-                    dealer_card >= 2 and dealer_card <=6:
+    elif player.hard_hand() and player.get_total() in {13, 14, 15, 16} and dealer_card in {2, 3, 4, 5, 6}:
         return s
-    elif player.hard_hand() and player.get_total() >= 13 and player.get_total() <=16:
+    elif player.hard_hand() and player.get_total() in {13, 14, 15, 16}:
         return h
     elif player.hard_hand() and player.get_total() >= 17:
         return s
@@ -252,15 +252,16 @@ def recommend_move(player, dealer_card):
         return s
     return "F2IK"
 
+
 def payout_clear_hands(players):
     winners = ""
     if players[0].bust:
         for i, p in enumerate(players[1:]):
             if p.blackjack and not p.bust:
-                winners += "Player " + str(i+1) + " won " + str(int(p.bet*1.5)) + "\n"
-                p.money += p.bet*1.5
+                winners += "Player " + str(i + 1) + " won " + str(int(p.bet * 1.5)) + "\n"
+                p.money += p.bet * 1.5
             elif not p.bust:
-                winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
+                winners += "Player " + str(i + 1) + " won " + str(p.bet) + "\n"
                 p.money += p.bet
             elif p.bust:
                 p.money -= p.bet
@@ -268,10 +269,10 @@ def payout_clear_hands(players):
         n = players[0].get_total()
         for i, p in enumerate(players[1:]):
             if p.blackjack and not p.bust:
-                winners += "Player " + str(i+1) + " won " + str(int(p.bet*1.5)) + "\n"
-                p.money += p.bet*1.5
+                winners += "Player " + str(i + 1) + " won " + str(int(p.bet * 1.5)) + "\n"
+                p.money += p.bet * 1.5
             elif p.get_total() > n and not p.bust:
-                winners += "Player " + str(i+1) + " won " + str(p.bet) + "\n"
+                winners += "Player " + str(i + 1) + " won " + str(p.bet) + "\n"
                 p.money += p.bet
             elif p.get_total() == n and not p.bust:
                 pass
@@ -281,34 +282,38 @@ def payout_clear_hands(players):
     for p in players:
         p.clear_hand()
 
+
 def print_everyone(players):
     for i, p in enumerate(players):
         print(p.return_status_string(i))
 
+
 def print_final_score(players):
     s = "\n"
     for i, p in enumerate(players):
-        s += "Player %d ended the game with %d money\n" % (i+1, p.money)
+        s += "Player %d ended the game with %d money\n" % (i + 1, p.money)
     print(s)
+
 
 def find_broke_players(players):
     broke_players = 1
     for i, p in enumerate(players[1:]):
         if p.money <= 0:
             p.broke = True
-            print("Player " + str(i+1) + " is broke as a goat!")
+            print("Player " + str(i + 1) + " is broke as a goat!")
             broke_players += 1
     if len(players) <= broke_players:
         print("Everyone is out of money!")
         exit()
 
+
 def ask_to_continue_or_change_bet(players):
     while True:
         try:
-            i= int(input("Hit enter to continue or input a player number to change bet\n"))
+            i = int(input("Hit enter to continue or input a player number to change bet\n"))
         except ValueError:
             return
-        if i > 0 and i < len(players):
+        if 0 < i < len(players):
             new_bet = get_positive_int_up_to("What is the new bet for player " + str(i), players[i].money)
             players[i].set_bet(new_bet)
         else:
@@ -336,8 +341,9 @@ def main_loop():
         find_broke_players(players)
         ask_to_continue_or_change_bet(players)
         shoe.check_cards_remaining(len(players))
-        if n != rounds-1:
-            print("*"*45+"\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n"+"*"*45)
+        if n != rounds - 1:
+            print("*" * 45 + "\nNEW ROUND NEW ROUND NEW ROUND NEW ROUND NEW ROUND\n" + "*" * 45)
     print_final_score(players[1:])
+
 
 main_loop()
