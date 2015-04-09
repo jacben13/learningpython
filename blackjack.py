@@ -54,7 +54,7 @@ class Player(object):
     hand = []
     blackjack = False
     broke = False
-
+    double_bet = False
     bet = 100
     bust = False
 
@@ -74,6 +74,9 @@ class Player(object):
         self.hand = []
         self.bust = False
         self.blackjack = False
+        if self.double_bet:
+            self.set_bet(int(self.bet / 2))
+        self.double_bet = False
 
     def hard_hand(self):
         # Total up the hand, if we execute the part of the code that adds 10 more to the total for aces, we have a
@@ -158,8 +161,14 @@ class Player(object):
 
     def set_bet(self, b):
         if b > self.money:
+            self.bet = self.money
             return
         self.bet = b
+
+    def double_down(self):
+        self.double_bet = True
+        self.set_bet(int(self.bet*2))
+
 
 
 def get_positive_int_up_to(prompt, max_int):
@@ -212,16 +221,21 @@ def ask_player_moves(players, d):
         print(p.return_status_string(i + 1))
         if p.blackjack or p.broke:
             continue
-        prompt = "Player " + str(i + 1) + ", what is your move? Choose 1 for stay, 2 to hit"
+        prompt = "Player " + str(i + 1) + ", what is your move? Choose 1 for stay, 2 to hit, 3 for double down"
         print("Recommended move is " + recommend_move(p, players[0].dealer_showing()))
-        move = get_positive_int_up_to(prompt, 2)
+        move = get_positive_int_up_to(prompt, 3)
         while move != 1 and not p.bust and not p.blackjack:
             if move == 2:
                 p.get_card(d)
+            elif move == 3:
+                p.double_down()
+                p.get_card(d)
+                print(p.return_status_string(i + 1))
+                break
             print(p.return_status_string(i + 1))
             if not p.bust:
                 print("Recommended move is " + recommend_move(p, players[0].dealer_showing()))
-                move = get_positive_int_up_to(prompt, 2)
+                move = get_positive_int_up_to(prompt, 3)
         if p.bust:
             print("*" * 45 + "\nBUST BUST BUST BUST BUST BUST BUST BUST BUST\n" + "*" * 45)
 
@@ -349,3 +363,5 @@ def main_loop():
 
 
 main_loop()
+
+#TODO add double down to recommended moves
