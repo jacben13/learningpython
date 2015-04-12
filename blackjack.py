@@ -514,6 +514,7 @@ def automatic_loop():
     print("Biggest losing streak was: %d which required a bet of %d" % (loss_streak, big_bet))
     print("Rounds Played: %d" % rounds_played)
     print("Money made or lost: %d" % (bot.money - starting_money))
+    print("Return on investment: %2f" % (bot.money / starting_money))
     print("Current money is: %d" %players[1].money)
     print("Last bet was for: %d" % players[1].bet)
 
