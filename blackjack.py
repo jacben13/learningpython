@@ -57,6 +57,7 @@ class Player(object):
     double_bet = False
     bet = 100
     bust = False
+    lost_last_hand = False
 
     def __init__(self, money):
         self.money = money
@@ -95,6 +96,8 @@ class Player(object):
             if total + 10 <= 21:
                 total += 10
                 hard = False
+            else:
+                hard = True
         return hard
 
     def get_total(self):
@@ -340,24 +343,30 @@ def payout_clear_hands(players):
             if p.blackjack and not p.bust:
                 winners += "Player " + str(i + 1) + " won " + str(int(p.bet * 1.5)) + "\n"
                 p.money += p.bet * 1.5
+                p.lost_last_hand = False
             elif not p.bust:
                 winners += "Player " + str(i + 1) + " won " + str(p.bet) + "\n"
                 p.money += p.bet
+                p.lost_last_hand = False
             elif p.bust:
                 p.money -= p.bet
+                p.lost_last_hand = True
     else:
         n = players[0].get_total()
         for i, p in enumerate(players[1:]):
             if p.blackjack and not p.bust and not players[0].blackjack:
                 winners += "Player " + str(i + 1) + " won " + str(int(p.bet * 1.5)) + "\n"
                 p.money += p.bet * 1.5
+                p.lost_last_hand = False
             elif p.get_total() > n and not p.bust:
                 winners += "Player " + str(i + 1) + " won " + str(p.bet) + "\n"
                 p.money += p.bet
+                p.lost_last_hand = False
             elif p.get_total() == n and not p.bust:
                 pass
             else:
                 p.money -= p.bet
+                p.lost_last_hand = True
     print(winners)
     for p in players:
         p.clear_hand()
@@ -400,14 +409,19 @@ def ask_to_continue_or_change_bet(players):
             print("Try inputting a player number instead")
 
 
-def main_loop():
+def manual_loop():
     decks = get_positive_int_up_to("How many decks would you like to play with? Must be from 1 to 10", 10)
     seats = get_positive_int_up_to("How many seats would you like to play? Max of 5", 5)
     rounds = get_positive_int_up_to("\nHow many rounds would you like to play? Max of 100", 100)
+    starting_money = get_positive_int_up_to("\nHow much money would you like to start with?", 1000000)
+    starting_bet = get_positive_int_up_to("\nWhat bet would you like to start with for everyone?", starting_money)
 
     shoe = Deck(decks)
-    players = initialize_players(seats, 1000)
+    players = initialize_players(seats, starting_money)
+    for p in players[1:]:
+        p.set_bet(starting_bet)
     print("You are playing " + str(seats) + " seats with " + str(decks) + " decks for " + str(rounds) + " rounds.")
+    print("\nPlayers are starting with " + str(starting_money) + " with bets of " +str(starting_bet))
 
     for n in range(rounds):
         initial_deal(players, shoe)
@@ -426,4 +440,85 @@ def main_loop():
     print_final_score(players[1:])
 
 
-main_loop()
+def bot_player_move(players, shoe):
+    while True:
+        recommended_move = recommend_move(players[1], players[0].dealer_showing())[0]
+        if recommended_move == "H":
+            players[1].get_card(shoe)
+        elif recommended_move == "D":
+            players[1].double_down()
+            players[1].get_card(shoe)
+            break
+        elif recommended_move == "S":
+            break
+        else:
+            print_everyone(players)
+            print(recommended_move)
+            input("We shouldn't have gotten here, this seems to be an error")
+            break
+
+
+def biggest_losing_streak(s):
+    streak = 0
+    max_streak = 0
+    for i in s:
+        if i == "L":
+            streak += 1
+            if streak > max_streak:
+                max_streak = streak
+        else:
+            streak = 0
+    return max_streak
+
+
+def automatic_loop():
+    decks = get_positive_int_up_to("How many decks would you like to play with? Must be from 1 to 10", 10)
+    seats = 1
+    rounds = int(100 * get_positive_int_up_to("\nHow many hundreds of rounds would you like to play? Max of 100", 100))
+    starting_money = get_positive_int_up_to("\nHow much money would you like to start with?", 1000000)
+    starting_bet = get_positive_int_up_to("\nWhat bet would you like to start with for everyone?", starting_money)
+
+    shoe = Deck(decks)
+    players = initialize_players(seats, starting_money)
+    for p in players[1:]:
+        p.set_bet(starting_bet)
+    bot = players[1]
+    rounds_played = 0
+    money_delta = 0
+    scorecard = ""
+    big_bet = 0
+    losses = 0
+    while bot.money > 0 and rounds_played < rounds:
+        if big_bet < bot.bet:
+            big_bet = bot.bet
+        rounds_played += 1
+        initial_deal(players, shoe)
+        check_for_blackjack(players)
+        bot_player_move(players, shoe)
+        players[0].dealer_moves(shoe)
+        payout_clear_hands(players)
+        if bot.lost_last_hand:
+            bot.set_bet(bot.bet * 2)
+            scorecard += "L"
+            losses += 1
+        else:
+            bot.set_bet(starting_bet)
+            scorecard += "W"
+    loss_streak = biggest_losing_streak(scorecard)
+    while len(scorecard) > 45:
+        print(scorecard[0:45])
+        scorecard = scorecard[45:]
+    print(scorecard)
+    print("Rounds won: %d  Rounds lost: %d" % (rounds_played - losses, losses))
+    print("Percentage of rounds won: %d" % (float((rounds_played - losses)/rounds_played) * 100))
+    print("Biggest losing streak was: %d which required a bet of %d" % (loss_streak, big_bet))
+    print("Rounds Played: %d" % rounds_played)
+    print("Money made or lost: %d" % (bot.money - starting_money))
+    print("Current money is: %d" %players[1].money)
+    print("Last bet was for: %d" % players[1].bet)
+
+method_of_play = get_positive_int_up_to("How would you like to play? 1 for manual, 2 for automatic", 2)
+if method_of_play == 1:
+    manual_loop()
+elif method_of_play == 2:
+    automatic_loop()
