@@ -18,4 +18,4 @@ Black Jack
 ------------
 
 Same as the casino game!  You will be able to do most things that can be done in the casino version.
-Currently, only the basic game (hit or stay) is enabled. The game will also recommend moves for your current situation.
+You can hit, stay, or double down. The game will also recommend moves for your current situation.

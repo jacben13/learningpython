@@ -243,9 +243,68 @@ def ask_player_moves(players, d):
 def recommend_move(player, dealer_card):
     # This function should return a string staying Hit, Stand, and any other implemented available moves
     # Recommendations are based on http://wizardofodds.com/games/blackjack/strategy/4-decks/
-    h = "Hit"
-    s = "Stand"
+    h = "Hit (2)"
+    s = "Stand (1)"
+    d = "Double Down(3)"
     dealer_card = int(dealer_card[0])
+
+    if player.hard_hand():
+        if player.get_total() <= 8:
+            return s
+        elif player.get_total() == 9:
+            if dealer_card in {3, 4, 5, 6} and not player.double_bet:
+                return d
+            else:
+                return h
+        elif player.get_total() == 10:
+            if dealer_card >= 10 or dealer_card == 1 or player.double_bet:
+                return h
+            else:
+                return d
+        elif player.get_total() == 11:
+            if dealer_card == 1 or player.double_bet:
+                return h
+            else:
+                return d
+        elif player.get_total() == 12:
+            if dealer_card in {4, 5, 6}:
+                return s
+            else:
+                return h
+        elif player.get_total() in {13, 14, 15, 16}:
+            if dealer_card == 1 or dealer_card >= 7:
+                return h
+            else:
+                return s
+        elif player.get_total() >= 17:
+            return s
+    else:
+        if player.get_total() in {13, 14}:
+            if not player.double_bet and dealer_card in {5, 6}:
+                return d
+            else:
+                return h
+        elif player.get_total() in {15, 16}:
+            if not player.double_bet and dealer_card in {4, 5, 6}:
+                return d
+            else:
+                return h
+        elif player.get_total() == 17:
+            if not player.double_bet and dealer_card in {3, 4, 5, 6}:
+                return d
+            else:
+                return h
+        elif player.get_total() == 18:
+            if not player.double_bet and dealer_card in {3, 4, 5, 6}:
+                return d
+            elif dealer_card in {1, 9, 10}:
+                return h
+            else:
+                return s
+        elif player.get_total() >= 19:
+            return s
+
+    ''' This logic is for use when double down is not available
     if player.get_total() <= 11:
         return h
     elif player.hard_hand() and player.get_total() == 12 and dealer_card in {4, 5, 6}:
@@ -266,6 +325,8 @@ def recommend_move(player, dealer_card):
         return s
     elif not player.hard_hand() and player.get_total() >= 19:
         return s
+    '''
+
     return "F2IK"
 
 
