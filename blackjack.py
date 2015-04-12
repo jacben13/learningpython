@@ -121,6 +121,9 @@ class Player(object):
     def dealer_showing(self):
         return self.hand[1:]
 
+    def dealer_showing_card(self):
+        return CARD_NAMES[self.hand[1]]
+
     def bust_or_not(self):
         if self.get_total() > 21:
             self.bust = True
@@ -168,7 +171,6 @@ class Player(object):
     def double_down(self):
         self.double_bet = True
         self.set_bet(int(self.bet*2))
-
 
 
 def get_positive_int_up_to(prompt, max_int):
@@ -221,6 +223,7 @@ def ask_player_moves(players, d):
         print(p.return_status_string(i + 1))
         if p.blackjack or p.broke:
             continue
+        print ("Dealer is showing " + players[0].dealer_showing_card() + "\n")
         prompt = "Player " + str(i + 1) + ", what is your move? Choose 1 for stay, 2 to hit, 3 for double down"
         print("Recommended move is " + recommend_move(p, players[0].dealer_showing()))
         move = get_positive_int_up_to(prompt, 3)
@@ -424,5 +427,3 @@ def main_loop():
 
 
 main_loop()
-
-#TODO add double down to recommended moves
